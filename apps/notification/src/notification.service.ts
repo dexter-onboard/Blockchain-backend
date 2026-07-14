@@ -1,4 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import {
   CHAIN_EVENTS_QUEUE_NOTIFICATION,
   ChainEventMessage,
@@ -46,7 +47,7 @@ export class NotificationService implements OnModuleInit {
         address: address || 'unknown',
         title,
         body,
-        metadata: msg.raw,
+        metadata: msg.raw as Prisma.InputJsonValue,
       },
     });
 

@@ -1,4 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import {
   CHAIN_EVENTS_QUEUE_INDEXER,
   ChainEventMessage,
@@ -38,7 +39,7 @@ export class IndexerService implements OnModuleInit {
         account: msg.account,
         value: msg.value,
         entryId: msg.entryId ? BigInt(msg.entryId) : null,
-        payload: msg.raw,
+        payload: msg.raw as Prisma.InputJsonValue,
       },
       update: {},
     });
@@ -54,7 +55,6 @@ export class IndexerService implements OnModuleInit {
       },
     });
 
-    // Invalidate list caches
     const keys = await this.redis.client.keys('events:list:*');
     if (keys.length) {
       await this.redis.client.del(...keys);
