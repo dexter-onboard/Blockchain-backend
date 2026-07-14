@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  address   String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  notifications Notification[]
+}
+
+model IndexedEvent {
+  id              String   @id @default(cuid())
+  txHash          String
+  logIndex        Int
+  blockNumber     BigInt
+  contractAddress String
+  eventName       String
+  account         String?
+  value           String?
+  entryId         BigInt?
+  payload         Json
+  createdAt       DateTime @default(now())
+
+  @@unique([txHash, logIndex])
+  @@index([account])
+  @@index([eventName])
+  @@index([blockNumber])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  address   String
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([address])
+}
+
+model SyncCursor {
+  id         String   @id @default(cuid())
+  key        String   @unique
+  blockNumber BigInt
+  updatedAt  DateTime @updatedAt
+}

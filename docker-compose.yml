@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: eth-postgres
+    environment:
+      POSTGRES_USER: eth
+      POSTGRES_PASSWORD: eth
+      POSTGRES_DB: eth_backend
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eth -d eth_backend"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: eth-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: eth-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: eth
+      RABBITMQ_DEFAULT_PASS: eth
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
